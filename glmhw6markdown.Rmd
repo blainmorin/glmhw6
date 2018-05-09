@@ -37,7 +37,7 @@ First, we fit a varying intercept logistic model. The variables that we choose t
 -Total household income (totincom2)
 
 
-```{r}
+```{r, message=FALSE}
 
 library(readr)
 library(lme4)
@@ -90,7 +90,7 @@ model.b = glmer(rodent2 ~
                   intcrack2 +
                   inthole2 +
                   regext +
-                  race +
+                  as.factor(race) +
                   (1 | cd/bldg) +
                   (ownhous_Mean + old_Mean | cd),
                 family = binomial (link = "logit"),
@@ -102,3 +102,11 @@ sjt.glmer(model.b)
 ```
 
 questions: within cd vs across cd?
+
+## (c)
+
+```{r}
+
+anova(model.a, model.b)
+
+```
