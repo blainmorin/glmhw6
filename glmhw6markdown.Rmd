@@ -42,6 +42,7 @@ First, we fit a varying intercept logistic model. The variables that we choose t
 library(readr)
 library(lme4)
 library(sjPlot)
+library(arm)
 rats = read.table("rodents.txt")
 
 attach(rats)
@@ -66,7 +67,7 @@ model.a = glmer(rodent2 ~
                   intcrack2 +
                   inthole2 +
                   regext +
-                  as.factor(race) +
+                  as.factor(race) 
                   (1 | bldg),
                 family = binomial (link = "logit"), 
                 control = glmerControl(optimizer="bobyqa", optCtrl = list(maxfun = 10000000)))
@@ -91,8 +92,9 @@ model.b = glmer(rodent2 ~
                   inthole2 +
                   regext +
                   as.factor(race) +
-                  (1 | cd/bldg) +
-                  (ownhous_Mean + old_Mean | cd),
+                  old_Mean +
+                  ownhous_Mean +
+                  (1  | cd/bldg),
                 family = binomial (link = "logit"),
                 control = glmerControl(optimizer="bobyqa", optCtrl = list(maxfun = 10000000)))
 
@@ -101,7 +103,7 @@ sjt.glmer(model.b)
 
 ```
 
-questions: within cd vs across cd?
+
 
 ## (c)
 
