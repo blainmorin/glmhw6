@@ -1,0 +1,100 @@
+---
+title: "PHP 2514 HW 6"
+author: "Blain Morin"
+date: "May 8, 2018"
+output: html_document
+---
+
+# Gelman, Hill Chapter 14 #3 
+
+3. Three-level logistic regression: the folder rodents contains data on rodents in a
+sample of New York City apartments.
+
+(a) Build a varying intercept logistic regression model (varying over buildings) to
+predict the presence of rodents (the variable rodent2 in the dataset) given
+indicators for the ethnic groups (race) as well as other potentially relevant
+predictors describing the apartment and building. Fit this model using lmer()
+and interpret the coefficients at both levels.
+
+(b) Now extend the model in (b) to allow variation across buildings within com-
+munity district and then across community districts. Also include predictors
+
+describing the community districts. Fit this model using lmer() and interpret
+the coefficients at all levels.
+
+(c) Compare the fit of the models in (a) and (b).
+
+
+## (a)
+
+First, we fit a varying intercept logistic model. The variables that we choose to examine are:
+
+-Rotted / Broken Windows (extwin4_2)
+-Missing or Worn Flooring (extflr5_2)
+-Cracks in Walls (intcrack2)
+-Holes in the flooring (inthole2)
+-If there is a regular exterminator (regext)
+-Total household income (totincom2)
+
+
+```{r}
+
+library(readr)
+library(lme4)
+library(sjPlot)
+rats = read.table("rodents.txt")
+
+attach(rats)
+
+### Change to factors
+rats$rodent2 = as.factor(rodent2)
+rats$extwin4_2 = as.factor(extwin4_2)
+rats$extflr5_2 = as.factor(extflr5_2)
+rats$intcrack2 = as.factor(intcrack2)
+rats$inthole2 = as.factor(inthole2)
+rats$old = as.factor(old)
+rats$regext = as.factor(regext)
+rats$housing = as.factor(housing)
+
+
+
+### Increase iterations for convergence
+glmerControl(optimizer="bobyqa", optCtrl = list(maxfun = 1000000))
+
+
+### Run Model
+model.a = glmer(rodent2 ~ 
+                  extwin4_2 +
+                  extflr5_2 +
+                  intcrack2 +
+                  inthole2 +
+                  regext +
+                  (1 | bldg),
+                family = binomial (link = "logit"))
+
+
+summary(model.a)
+sjt.glmer(model.a)
+
+
+```
+
+
+## (b)
+
+```{r}
+
+rats$cd = as.factor(cd)
+
+model.b = glmer(rodent2 ~ 
+                  extwin4_2 +
+                  extflr5_2 +
+                  intcrack2 +
+                  inthole2 +
+                  regext +
+                  (1 | bldg) +
+                  (1 | cd),
+                family = binomial (link = "logit"))
+
+sjt.glmer(model.b)
+```
