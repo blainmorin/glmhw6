@@ -92,8 +92,7 @@ model.b = glmer(rodent2 ~
                   intcrack2 +
                   inthole2 +
                   regext +
-                  (1 | bldg) +
-                  (1 | cd),
+                  (1 | bldg/cd),
                 family = binomial (link = "logit"))
 
 sjt.glmer(model.b)
