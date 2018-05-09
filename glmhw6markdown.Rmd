@@ -27,14 +27,13 @@ the coefficients at all levels.
 
 ## (a)
 
-First, we fit a varying intercept logistic model. The variables that we choose to examine are:
+First, we fit a varying intercept logistic model (grouped by building). The variables that we choose to examine are:
 
--Rotted / Broken Windows (extwin4_2)
 -Missing or Worn Flooring (extflr5_2)
 -Cracks in Walls (intcrack2)
 -Holes in the flooring (inthole2)
 -If there is a regular exterminator (regext)
--Total household income (totincom2)
+-Race (race)
 
 
 ```{r, message=FALSE}
@@ -67,7 +66,7 @@ model.a = glmer(rodent2 ~
                   intcrack2 +
                   inthole2 +
                   regext +
-                  as.factor(race) 
+                  as.factor(race) + 
                   (1 | bldg),
                 family = binomial (link = "logit"), 
                 control = glmerControl(optimizer="bobyqa", optCtrl = list(maxfun = 10000000)))
@@ -79,8 +78,16 @@ sjt.glmer(model.a)
 
 ```
 
+For this model, the intercept was allowed to vary for each building. The overall mean intercept is -3.09. The random intercepts vary about this mean with a variance of 2.246.
+
+The binary fixed effects have a similar interpretation. When exponentiated, they give an odds ratio. For example, If an apartment has holes in the flooring, they have 4.38 times the odds of having rodents than a similar apartment with no holes. 
+
+The categorical race predictor is referenced to group 1. Similar to the binary variables, exponentiating the betas give an odds ratio. For example, apartments where the tennants are of race category two, have 5.87 times the odds of having rodents than a similar apartment with tennants of race category 1. 
 
 ## (b)
+
+Next we fit a three level model. Apartments are grouped by building. Buildings are grouped by community district (cd).
+This model also adds community district level predictors: the mean of homeownership in the community (ownhous_Mean) and the mean proportion of old houses in the community (old_Mean).
 
 ```{r}
 
@@ -103,7 +110,9 @@ sjt.glmer(model.b)
 
 ```
 
+The three level model includes an extra random slope effect. The intercept variance within a community district is 2.17. The intercept variance between community districts is .01.
 
+The binary and categorical interpretations are the same as in the two level model. The continuous community level  
 
 ## (c)
 
@@ -112,3 +121,5 @@ sjt.glmer(model.b)
 anova(model.a, model.b)
 
 ```
+
+ We see from the ANOVA table the three level model has a better fit (p value for the chi squared test is very small).  
