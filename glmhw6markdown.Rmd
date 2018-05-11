@@ -2,7 +2,9 @@
 title: "PHP 2514 HW 6"
 author: "Blain Morin"
 date: "May 8, 2018"
-output: html_document
+output: 
+  html_document:
+    theme: journal
 ---
 
 # Gelman, Hill Chapter 13 #5
