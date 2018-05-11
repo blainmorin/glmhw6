@@ -19,14 +19,19 @@ library(lme4)
 library(arm)
 library(sjPlot)
 
+### Read in data, change vdate to dates
 cd4 <- read.csv("cd4.csv")
 cd4$vdate <- mdy(cd4$vdate)
 cd4$treatmnt <- as.factor(cd4$treatmnt)
+
+### Extract complete cases
 cd4_full <- cd4[complete.cases(cd4),]
 
+### Run vary intercept, vary slopes model
 model_135a <- lmer(cd4pct ~ treatmnt + baseage + visitno + (1 + visitno|newpid), data = cd4_full)
 summary(model_135a)
 sjt.lmer(model_135a)
+
 ```
 
 From the model summary above, we see that the random intercepts vary about 27.775 with a variance of 142.36. We also see that the slope for visit number varies around -.242 with a variance of .175. 
@@ -35,18 +40,20 @@ The interpretation for the binary treatment coefficient is that we expect cd4 pe
 
 The continuous predictor, baseline age, can be interpretted as: For every year increase in baseline age, we expect a .92% lower cd4 percentage on average, all else equal.
 
-Visit number can be interpretted as: For each additional follow up visit, we expect a .242 decrease in cd4 percentage on average, all else equal. 
+Visit number can be interpretted as: For each additional follow up visit, we expect a .242 decrease in cd4 percentage on average, all else equal (the actual slope is different for each person). 
 
 ### Part B
 
 We then try the model using visit number as a factor instead of using varying slopes. 
 
 ```{r, message = FALSE}
-#use same model as above but with date as a factor and date does not vary by personid
+
+### Run a model with varying intercepts, but fixed slopes for indicators for visit number
 cd4_full$visitno_factor <- as.factor(cd4_full$visitno)
 model_135b <- lmer(cd4pct ~ treatmnt + baseage + visitno_factor + (1 | newpid), data = cd4_full)
 summary(model_135b)
 sjt.lmer(model_135b)
+
 ```
 
 Treatment and baseline age coefficients are interpretted the same as in part (a). However, the coefficients for visit number are now in reference to visit 1. An example interpretation: At visit 7, we expect the average cd4 percentage to be 1.69 percentage points lower than on visit one, all else equal. 
@@ -56,11 +63,13 @@ Treatment and baseline age coefficients are interpretted the same as in part (a)
 We first compare the two models graphically using QQ plots:
 
 ```{r, echo = FALSE}
+### create QQ plots
 par(mfrow = c(1,2))
 qqnorm(resid(model_135a), main = "Normal Q-Q Plot Model 1")
 qqline(resid(model_135a))
 qqnorm(resid(model_135b), main = "Normal Q-Q Plot Model 2")
 qqline(resid(model_135b))
+
 ```
 
 We see that niether plots are very good in the tails. However, Model 1 appears to by slightly closer to the normal line. 
@@ -69,11 +78,15 @@ We see that niether plots are very good in the tails. However, Model 1 appears t
 We alco checked the residual plots.
 
 ```{r, echo = FALSE}
+
+###Create residual plots
 par(mfrow = c(1,2))
 plot(fitted(model_135a), resid(model_135a), main = "Fitted vs. Residuals for Model 1", xlab = "Fitted Values", ylab = "Residual Values")
 abline(h=0)
 plot(fitted(model_135b), resid(model_135b), main = "Fitted vs. Residuals for Model 2", xlab = "Fitted Values", ylab = "Residual Values")
 abline(h=0)
+
+
 ```
 
 The residuals plots both look randomly scattered about the zero line, and look about the same. 
@@ -82,7 +95,7 @@ The residuals plots both look randomly scattered about the zero line, and look a
 We also compare the models numerically, using AIC values:
 
 ```{r}
-
+### extract AICs
 AIC(model_135a)
 AIC(model_135b)
 
@@ -91,24 +104,6 @@ AIC(model_135b)
 We see that model 1 has a slightly lower AIC. This provides weak evidence that the varying intercept and slope model has a better fit.  
 
 # Gelman, Hill Chapter 14 #3 
-
-3. Three-level logistic regression: the folder rodents contains data on rodents in a
-sample of New York City apartments.
-
-(a) Build a varying intercept logistic regression model (varying over buildings) to
-predict the presence of rodents (the variable rodent2 in the dataset) given
-indicators for the ethnic groups (race) as well as other potentially relevant
-predictors describing the apartment and building. Fit this model using lmer()
-and interpret the coefficients at both levels.
-
-(b) Now extend the model in (b) to allow variation across buildings within com-
-munity district and then across community districts. Also include predictors
-
-describing the community districts. Fit this model using lmer() and interpret
-the coefficients at all levels.
-
-(c) Compare the fit of the models in (a) and (b).
-
 
 ## (a)
 
@@ -177,7 +172,6 @@ This model also adds community district level predictors: the mean of homeowners
 ```{r, message=FALSE}
 
 rats$cd = as.factor(cd)
-rats$old_Mean = old_Mean /100
 
 model.b = glmer(rodent2 ~ 
                   extflr5_2 +
